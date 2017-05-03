@@ -22,21 +22,53 @@ function bashnode::import  {
   done
   shift $((OPTIND-1))
 
-  local importname=$1
-  local importedBasename="${importname%%.*}";
-  local oldval=$(eval echo \$bashnode_imported_"$importedBasename"__$exported)
+  local exportedTag=$exported
+  [[ $exportedTag == '-' ]] && exportedTag=
 
-  if [[ ! -z "$oldval"  ]] ;then
-    return
-  fi
-  eval bashnode_imported_"$importedBasename"__$exported=1
+  while (( "$#" )); do
+    local importname=$1
+    local importedBasename="${importname%%.*}";
 
-  eval "$( source $1;)"
+    local oldval=$(eval echo \$bashnode_imported_"$importedBasename"__$exportedTag)
+
+    if [[ ! -z "$oldval"  ]] ;then
+      return
+    fi
+
+    local sourceResult=
+    eval "$( source $1 || echo false )" && sourceResult=yes
+    if [[ $sourceResult == yes ]]; then
+      eval bashnode_imported_"$importedBasename"__$exportedTag=1
+    fi
+  shift
+  done
+
+
 
 }
 
 
 function bashnode::export  {
+  local OPTIND
+
+  defaultExported=
+  while getopts "o:" arg; do
+  case $arg in
+    o) defaultExported=$OPTARG;;
+  esac
+  done
+  shift $((OPTIND-1))
+
+  if [[ -z $exported  ]]  ; then
+    exported=$defaultExported
+  fi
+
+  if [[ $exported == '-' ]];then
+    exported=
+  fi
+
+
+
    for i in  $*;do
      local exportedPrefixFunction=
      local exportedPrefixVar=
@@ -45,8 +77,6 @@ function bashnode::export  {
         exportedPrefixFunction=$exported::
         exportedPrefixVar="$exported"_
      fi
-
-
 
     if [[ "$(type -t $i)" = 'function' ]]; then
        echo -n 'function ';
@@ -63,5 +93,3 @@ function bashnode::export  {
 
 
 }
-
-
