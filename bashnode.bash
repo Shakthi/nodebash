@@ -6,6 +6,8 @@
 [[ $bashnode_included == yes ]] && return 0
 bashnode_included=yes
 
+bashnode_self_path="${BASH_SOURCE%/*}"
+if [[ ! -d "$bashnode_self_path" ]]; then bashnode_self_path="$PWD"; fi
 
 function bashnode  {
   local command=bashnode::$1
@@ -18,6 +20,7 @@ function bashnode  {
 function bashnode::import  {
   local exported=
   local OPTIND
+  local builtingPath=$bashnode_self_path
 
   while getopts "i:" arg; do
   case $arg in
@@ -40,7 +43,7 @@ function bashnode::import  {
       return
     fi
     local sourceResult=
-    eval "$(   [[ ! -z $bashnode_path ]] && PATH=$bashnode_path:$PATH && source  importhelper && source $1 || echo false )" && sourceResult=yes
+    eval "$(   PATH=$builtingPath:$bashnode_path:$PATH && source  importhelper && source $1 || echo false )" && sourceResult=yes
     if [[ $sourceResult == yes ]]; then
       eval bashnode_imported_"$importedBasename"__$exportedTag=1
     fi
