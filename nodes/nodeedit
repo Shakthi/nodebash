@@ -12,7 +12,7 @@ ed()
    cat $bashnode_self_path/nodes/template >$tempfile
 
     vi $tempfile
-    cmp -q $tempfile $bashnode_self_path/nodes/template && rm $tempfile && return 1
+    cmp  $tempfile $bashnode_self_path/nodes/template  2>&1 1>/dev/null && rm $tempfile && return 1
    
     mv $tempfile $bashnode_self_path/nodes/$1 
  
