@@ -4,9 +4,20 @@
 
 
 ed()
-{
+{ 
+  if [ -f $bashnode_self_path/nodes/$1 ];then 
+   vi $bashnode_self_path/nodes/$1
+  else 
+   tempfile=$(mktemp /tmp/output.XXXXXXXXXX)
+   cat $bashnode_self_path/nodes/template >$tempfile
 
-
-
+    vi $tempfile
+    cmp -q $tempfile $bashnode_self_path/nodes/template && rm $tempfile && return 1
+   
+    mv $tempfile $bashnode_self_path/nodes/$1 
+ 
+  fi
 
 }
+
+bashnode export  -o nodeedit ed

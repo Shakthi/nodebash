@@ -1,0 +1,15 @@
+#!/bin/bash
+#name: name
+#description -- helper
+
+
+
+
+
+#foo()
+#{
+# echo "Hello world"
+#}
+
+
+#export -o name foo
