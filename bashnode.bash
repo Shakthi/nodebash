@@ -3,11 +3,16 @@
 
 #set -x
 
+[[ $bashnode_included == yes ]] && return 0
+bashnode_included=yes
+
+
 function bashnode  {
   local command=bashnode::$1
   shift 1
   $command $@
 }
+
 
 
 function bashnode::import  {
@@ -34,9 +39,8 @@ function bashnode::import  {
     if [[ ! -z "$oldval"  ]] ;then
       return
     fi
-
     local sourceResult=
-    eval "$( source $1 || echo false )" && sourceResult=yes
+    eval "$(   [[ ! -z $bashnode_path ]] && PATH=$bashnode_path:$PATH && source  importhelper && source $1 || echo false )" && sourceResult=yes
     if [[ $sourceResult == yes ]]; then
       eval bashnode_imported_"$importedBasename"__$exportedTag=1
     fi
@@ -49,6 +53,15 @@ function bashnode::import  {
 
 
 function bashnode::export  {
+
+  function rename_function()
+  {
+      local old_name=$1
+      local new_name=$2
+      eval "$(echo "${new_name}()"; declare -f ${old_name} | tail -n +2)"
+      unset -f ${old_name}
+  }
+
   local OPTIND
 
   defaultExported=
@@ -79,17 +92,24 @@ function bashnode::export  {
      fi
 
     if [[ "$(type -t $i)" = 'function' ]]; then
-       echo -n 'function ';
-       declare -f $i|sed s"/$i/$exportedPrefixFunction$i/"
-       continue;
-    fi
+      if [[ ! -z $exportedPrefixFunction ]];then
+      rename_function $i $exportedPrefixFunction$i
+      fi
+      declare -f $exportedPrefixFunction$i
+      echo export -f $exportedPrefixFunction$i
+    else
+
 
     eval content=\$$i
 
     if [[ x"$content" != x ]]; then
-      echo "$exportedPrefixVar$i=$content"
+      echo "export $exportedPrefixVar$i=$content"
     fi
+
+   fi
    done
 
 
 }
+
+export -f bashnode::export  bashnode::import bashnode

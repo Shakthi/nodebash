@@ -4,7 +4,7 @@
 #module
 mycd(){
 
-:
+echo $1
 }
 
 MYCD="Asdasd"

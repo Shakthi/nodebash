@@ -1,0 +1,19 @@
+#!/bin/bash
+#name:echolor
+#description -- color supported echo
+
+bashnode::import  echolor
+
+error()
+{
+  echolor "<#red>" "$*" "</#red>"
+}
+
+warning()
+{
+  bashnode import echolor
+  echolor "<#yellow>" "$*" "</#yellow>"
+}
+
+
+bashnode export error warning
