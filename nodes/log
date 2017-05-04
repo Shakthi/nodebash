@@ -2,7 +2,7 @@
 #name:echolor
 #description -- color supported echo
 
-bashnode::import  echolor
+#bashnode::import  echolor
 
 error()
 {

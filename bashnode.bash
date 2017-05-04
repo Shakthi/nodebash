@@ -20,7 +20,7 @@ function bashnode  {
 function bashnode::import  {
   local exported=
   local OPTIND
-  local builtingPath=$bashnode_self_path
+  local builtingPath=$bashnode_self_path/nodes
 
   while getopts "i:" arg; do
   case $arg in
